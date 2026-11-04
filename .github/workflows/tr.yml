@@ -1,0 +1,24 @@
+name: Transcribe
+on:
+  workflow_dispatch:
+    inputs:
+      lo: { default: "1" }
+      hi: { default: "9999" }
+permissions:
+  contents: write
+jobs:
+  tr:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -q faster-whisper==1.1.1 requests
+      - run: |
+          git config user.name "Claude"; git config user.email "noreply@anthropic.com"
+          python transcribe.py ${{ matrix.shard }} 20 ${{ inputs.lo }} ${{ inputs.hi }}
